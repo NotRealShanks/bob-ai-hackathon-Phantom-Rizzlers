@@ -1,121 +1,108 @@
-# 🚀 [Your Project Title Here]
+# 🛡️ Child Online Safety Monitor (COSM)
 
-> ⚠️ **Replace everything in `[ ]` brackets with your actual content before submission.**
+**IBM Bob Hackathon 2025 — Team: Phantom Rizzlers | Track: AI**
 
----
-
-## 👥 Team
-
-| Field | Value |
-|---|---|
-| **Team Name** | Phantom Rizzlers |
-| **Track** | AI |
-| **Team Lead** | Shashank Yadav — shashankyadav.10a@gmail.com |
-| **Members** | Jammi Sunder Karthikeya |
+A first-response Streamlit tool for parents, teachers, and NGO / child-protection workers to detect online grooming warning signs, understand applicable Indian law, and generate a ready-to-submit incident report — without re-exposing harmful content.
 
 ---
 
-## 🎯 Problem Statement
+## ⚠️ Important Notice
 
-> In 2–3 sentences: What problem does your project solve? Who experiences this problem?
-
-[Describe the real-world problem your project addresses. Be specific about who the user is and what pain point they face.]
+> This tool uses **mock / synthetic data only**. No real CSAM (Child Sexual Abuse Material) or real victim data is ever processed, stored, or transmitted. All sample cases are entirely fictional.
 
 ---
 
-## 💡 Solution
+## Features
 
-> In 2–3 sentences: What did you build? How does it solve the problem above?
-
-[Describe your solution clearly. Explain the core mechanism — what makes it work.]
-
----
-
-## ✨ Key Features
-
-- **Feature 1:** [Brief description — e.g., "Real-time anomaly detection using watsonx.ai"]
-- **Feature 2:** [Brief description]
-- **Feature 3:** [Brief description]
-- **Feature 4:** [Optional]
-- **Feature 5:** [Optional]
+| Feature | Description |
+|---------|-------------|
+| **Grooming detection** | Pattern-matching against 12+ known grooming/predatory behaviour signals |
+| **Risk scoring** | Automated Low / Medium / High / Critical risk level with 0–100 score |
+| **Legal mapping** | Automatic mapping to POCSO Act 2012 (§11–§19) and IT Act 2000 (§67B, §66E) |
+| **Evidence guide** | 10-step evidence preservation checklist without re-exposing content |
+| **Auto-filled report** | CyberTipline / cybercrime.gov.in style report, downloadable as Markdown or PDF |
+| **5 demo cases** | Synthetic sample cases for instant demo — one click loads them |
 
 ---
 
-## 🛠️ Tech Stack
-
-| Category | Technologies |
-|---|---|
-| **Languages** | [e.g., Python, TypeScript] |
-| **Frameworks** | [e.g., FastAPI, React] |
-| **IBM Technologies** | [e.g., watsonx.ai, IBM Bob, IBM Cloud] |
-| **Databases** | [e.g., PostgreSQL, Redis] |
-| **Other** | [e.g., Docker, GitHub Actions] |
-
----
-
-## 📁 Repository Structure
-
-```
-├── src/                  # All source code
-├── docs/                 # Written documentation
-│   ├── problem-statement.md
-│   ├── solution-overview.md
-│   ├── architecture.md
-│   └── setup-guide.md
-├── demo/                 # Demo artifacts
-│   ├── screenshots/      # App screenshots
-│   └── demo-video-link.txt  # Link to demo video
-├── presentation/         # Slide deck
-└── submission.yaml       # Structured submission metadata
-```
-
----
-
-## ⚡ How to Run
-
-> **Copy these exact steps from your [`docs/setup-guide.md`](docs/setup-guide.md)**
+## Quick Start
 
 ```bash
-# 1. Clone the repo
-git clone https://github.com/[your-repo].git
-cd [your-repo]
+# 1. Clone the repository
+git clone <repo-url>
+cd bob-ai-hackathon-Phantom-Rizzlers
 
-# 2. Install dependencies
-[your install command here]
+# 2. Create and activate virtual environment
+python -m venv .venv
+# Windows:
+.venv\Scripts\activate
+# macOS/Linux:
+source .venv/bin/activate
 
-# 3. Configure environment
-cp .env.example .env
-# Edit .env with your values
+# 3. Install dependencies
+pip install -r requirements.txt
 
-# 4. Run the project
-[your run command here]
+# 4. Run the app
+streamlit run src/app.py
+```
+
+The app will open at `http://localhost:8501`.
+
+---
+
+## Project Structure
+
+```
+src/
+  app.py               — Streamlit UI (main entry-point)
+  analyzer.py          — Core analysis engine (grooming patterns, risk scoring, legal mapping)
+  sample_cases.py      — 5 synthetic demo cases
+  report_generator.py  — Markdown + PDF report builder
+docs/
+  setup-guide.md       — Detailed setup and deployment guide
+  architecture.md      — System architecture overview
+requirements.txt
+README.md
+submission.yaml
 ```
 
 ---
 
-## 🖥️ Demo
+## Sample Cases (Demo)
 
-| Artifact | Link |
-|---|---|
-| 📹 Demo Video | [See demo/demo-video-link.txt](demo/demo-video-link.txt) |
-| 🌐 Live Demo | [See demo/live-demo-url.txt](demo/live-demo-url.txt) |
-| 🖼️ Screenshots | [See demo/screenshots/](demo/screenshots/) |
-| 📊 Presentation | [See presentation/slides.pdf](presentation/) |
-
----
-
-## ⚠️ Known Limitations
-
-> Be honest — judges appreciate transparency over overclaiming.
-
-- [Limitation 1: e.g., "Authentication is mocked — not production-ready"]
-- [Limitation 2: e.g., "Only tested on Chrome"]
-- [Limitation 3: e.g., "Feature X is scaffolded but not fully implemented"]
+| # | Scenario | Expected Risk |
+|---|----------|---------------|
+| 1 | New 'friend' on gaming platform (gifting + secrecy + image request) | 🔴 Critical |
+| 2 | Behavioural changes at school (withdrawal, phone hiding, isolation) | 🟠 High |
+| 3 | Sextortion via Instagram DMs (coercion + blackmail) | 🔴 Critical |
+| 4 | Normal school group chat | 🟢 Low |
+| 5 | Webcam coercion + isolation on Telegram | 🔴 Critical |
 
 ---
 
-## 🏅 What We're Most Proud Of
+## Legal References
 
-[Tell the judges what part of your submission is strongest and worth paying close attention to.]
+- **POCSO Act 2012** — Protection of Children from Sexual Offences: Sections 11, 12, 13, 14, 15, 19
+- **IT Act 2000** — Information Technology Act: Sections 67B (online CSAM), 66E (privacy), 67, 66C/66D
 
 ---
+
+## Reporting Contacts (India)
+
+| Resource | Details |
+|----------|---------|
+| National Cyber Crime Portal | [cybercrime.gov.in](https://cybercrime.gov.in) |
+| National Cyber Helpline | **1930** |
+| Childline India | **1098** (24×7) |
+| Emergency | **112** |
+
+---
+
+## Team
+
+- **Shashank Yadav** (Lead)
+- **Jammi Sunder Karthikeya**
+
+---
+
+*Built for IBM Bob Hackathon 2025. This tool is a first-response aid — professional law enforcement investigation is always required.*

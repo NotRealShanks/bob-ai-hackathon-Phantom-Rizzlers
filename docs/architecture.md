@@ -1,49 +1,129 @@
-# Architecture
+# Architecture — Child Online Safety Monitor (COSM)
 
-## System Architecture
+**Team: Phantom Rizzlers | IBM Bob Hackathon 2025 | Track: AI**
 
-[Describe the overall architecture of your system. Replace the Mermaid diagram below with your actual architecture.]
+---
 
-```mermaid
-graph TD
-    A[User / Browser] -->|HTTP| B[Frontend - React]
-    B -->|REST API| C[Backend - FastAPI]
-    C -->|SDK| D[watsonx.ai]
-    C -->|Query| E[PostgreSQL]
-    C -->|Publish| F[Slack Webhook]
-    D -->|Inference Result| C
+## Overview
+
+COSM is a single-process, fully local Streamlit application. There is no backend server, no database, and no external API calls. All analysis happens in-memory on the user's machine.
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                   Browser (localhost:8501)               │
+│                                                         │
+│  ┌─────────────┐    ┌──────────────────────────────┐   │
+│  │  Sidebar     │    │  Main Panel                  │   │
+│  │  ─────────  │    │  ──────────                  │   │
+│  │  Sample     │    │  Text Input Area              │   │
+│  │  Cases (5)  │───▶│  ↓                            │   │
+│  │             │    │  [Analyse Now] button         │   │
+│  │  Emergency  │    │  ↓                            │   │
+│  │  Contacts   │    │  Results: Risk Badge          │   │
+│  └─────────────┘    │  Tabs: Warnings / Legal /     │   │
+│                     │        Preservation / Report  │   │
+│                     └──────────────────────────────┘   │
+└─────────────────────────────────────────────────────────┘
+           │                        │
+           ▼                        ▼
+┌──────────────────┐    ┌────────────────────────┐
+│  sample_cases.py │    │      analyzer.py        │
+│  ───────────── │    │  ──────────────────     │
+│  5 synthetic    │    │  detect_input_type()    │
+│  demo cases     │    │  analyse_text()         │
+└──────────────────┘    │  BEHAVIOURAL_PATTERNS   │
+                        │  POCSO_SECTIONS         │
+                        │  IT_ACT_SECTIONS        │
+                        │  PRESERVATION_STEPS     │
+                        └────────────┬───────────┘
+                                     │ AnalysisResult
+                                     ▼
+                        ┌────────────────────────┐
+                        │   report_generator.py   │
+                        │  ──────────────────     │
+                        │  generate_markdown()    │
+                        │  generate_pdf_bytes()   │
+                        └────────────────────────┘
 ```
 
-## Components
+---
 
-| Component | Technology | Responsibility |
-|---|---|---|
-| Frontend | [e.g., React 18] | [e.g., Dashboard UI, user interaction] |
-| Backend API | [e.g., FastAPI] | [e.g., Business logic, orchestration] |
-| AI / ML | [e.g., watsonx.ai] | [e.g., Anomaly scoring, classification] |
-| Database | [e.g., PostgreSQL] | [e.g., Storing pipeline events and scores] |
-| Notifications | [e.g., Slack API] | [e.g., Alerting on threshold breaches] |
+## Component Descriptions
+
+### `src/app.py` — Streamlit UI
+- Entry-point; run with `streamlit run src/app.py`
+- Manages session state (`input_text`, `result`, `reporter_context`)
+- Renders risk badges, warning sign cards, legal cards, step cards
+- Sidebar hosts 5 one-click demo case buttons
+- Triggers analysis on button click; renders results in 4 tabs
+- Download buttons for Markdown and PDF report
+
+### `src/analyzer.py` — Core Analysis Engine
+- `detect_input_type(text)` — heuristically classifies input as `chat` or `behavioural`
+- `analyse_text(text) → AnalysisResult` — main analysis pipeline:
+  1. Runs text against 12 compiled regex patterns (`BEHAVIOURAL_PATTERNS`)
+  2. Sums category-weighted scores (behavioural: 8, communication: 10, digital: 15)
+  3. Applies critical-trigger boosts (+20 per hit)
+  4. Maps score to Low / Medium / High / Critical risk band
+  5. Forces Critical on coercion/blackmail detection
+  6. Selects relevant POCSO and IT Act provisions
+  7. Returns typed `AnalysisResult` dataclass
+- No I/O, no network calls, no side-effects
+
+### `src/sample_cases.py` — Synthetic Demo Cases
+- 5 `SampleCase` dataclasses, entirely fictional
+- Cover the full risk spectrum (Low → Critical)
+- Loaded on sidebar button click via `st.session_state`
+
+### `src/report_generator.py` — Report Builder
+- `generate_markdown_report(result, context) → str` — produces a CyberTipline-style incident report with no harmful content; includes risk summary, warning signs, legal provisions, preservation checklist, and reporting contacts
+- `generate_pdf_bytes(markdown) → bytes` — renders markdown to PDF via `reportlab`; gracefully falls back to UTF-8 encoded markdown if `reportlab` is unavailable
+
+---
 
 ## Data Flow
 
-[Describe how data moves through your system from input to output.]
+```
+User Input (text)
+       │
+       ▼
+analyse_text()  ← regex patterns, legal catalog, preservation steps
+       │
+       ▼
+AnalysisResult  (dataclass: risk_level, score, warning_signs, legal_mappings, ...)
+       │
+       ├─▶  app.py renders UI tabs
+       │
+       └─▶  generate_markdown_report() / generate_pdf_bytes()
+                    │
+                    ▼
+             Download button (Markdown or PDF)
+```
 
-1. [e.g., Pipeline logs are ingested via a webhook from GitHub Actions]
-2. [e.g., Logs are preprocessed and chunked into 512-token segments]
-3. [e.g., Each chunk is sent to the watsonx.ai inference endpoint]
-4. [e.g., Anomaly scores are stored in PostgreSQL]
-5. [e.g., The React dashboard polls the API every 30 seconds to refresh]
+---
 
-## Security Considerations
+## Design Decisions
 
-[Note any security decisions relevant to the architecture — even if basic.]
+| Decision | Rationale |
+|----------|-----------|
+| **No LLM / API calls** | Fully offline, zero latency, no cost, no data-privacy risk |
+| **Regex pattern matching** | Transparent, auditable, deterministic — appropriate for a safety tool |
+| **No raw input in report** | Prevents re-exposure of potentially harmful content |
+| **Streamlit** | Zero-boilerplate MVP; judges can run it in 3 commands |
+| **reportlab for PDF** | Pure-Python, no external services, no cloud dependency |
+| **Dataclasses** | Clear typed interfaces; easy to extend to ML/LLM backend later |
 
-- [e.g., API keys stored in environment variables, never committed to git]
-- [e.g., All API routes require a Bearer token]
-- [e.g., Database credentials rotated via IBM Secrets Manager]
+---
 
-## Scalability Notes
+## Extension Points
 
-[Optional: how would this scale beyond the hackathon prototype?]
+This MVP is deliberately pattern-based. Future versions could:
+- Replace `analyse_text()` with a **watsonx.ai** NLP call for richer semantic analysis
+- Add a **vector similarity** layer against a known grooming script database
+- Integrate with **cybercrime.gov.in API** when one becomes available
+- Add **multi-language support** (Hindi, Tamil, etc.)
+- Deploy as a **Streamlit Community Cloud** or **IBM Cloud Code Engine** app
 
-[e.g., "The FastAPI backend is stateless and could be horizontally scaled behind a load balancer. The watsonx.ai calls are the bottleneck and would benefit from request batching."]
+---
+
+*Architecture document for IBM Bob Hackathon 2025 submission.*
