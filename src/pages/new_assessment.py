@@ -4,6 +4,8 @@ pages/new_assessment.py — Two-step assessment flow.
 Step 1: Parent describes the situation.
 Step 2: AI + deterministic results, Safety Plan, tabs, save case.
 """
+from ui.components import render_legal_card
+# pyrefly: ignore [invalid-syntax]
 from __future__ import annotations
 
 import streamlit as st
