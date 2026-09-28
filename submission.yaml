@@ -17,8 +17,8 @@ team:
   members:
     - name: "Jammi Sunder Karthikeya"                         # REQUIRED — Team member 1
       email: "jskarthikeya05@gmail.com"
-    - name: ""                         # Add more members by copying the two lines above
-      email: ""
+    - name: "Manikanta"                         # Add more members by copying the two lines above
+      email: "mani2manyy@gmail.com"
     - name: ""
       email: ""
 
@@ -28,42 +28,45 @@ submission:
   problem_statement: >
     Children face escalating online grooming and sexual exploitation, yet parents, teachers, and
     NGO workers lack a fast, accessible tool to identify warning signs, understand their legal
-    obligations, and generate a ready-to-submit incident report without inadvertently re-exposing
+    obligations, and generate a structured incident report draft — without inadvertently re-exposing
     harmful content. The gap between detection and formal reporting leaves children at risk.
 
   solution_summary: >
-    COSM is a fully local Streamlit application that accepts a behavioural description or
-    anonymised chat excerpt, detects grooming warning signs via pattern analysis, scores risk
-    (Low–Critical), maps findings to POCSO Act 2012 and IT Act 2000, provides a 10-step evidence
-    preservation guide, and auto-generates a CyberTipline-style incident report downloadable as
-    Markdown or PDF — all without storing, transmitting, or re-displaying harmful content.
+    COSM is a Streamlit application powered by IBM watsonx.ai (Granite) that lets a parent
+    describe a concerning situation in plain language. It combines live AI assessment with a
+    deterministic safety-rules engine to produce a severity level (LOW/MODERATE/HIGH/URGENT),
+    a Personalised Safety Plan, legal context (POCSO Act 2012 / IT Act 2000), evidence guidance,
+    and a structured Incident Report Draft — all without storing or re-displaying harmful content.
+    Cases are persisted in SQLite with full case history and status management.
 
   key_features:
-    - "Grooming pattern detection across 12+ behavioural, communication, and digital signal categories"
-    - "Automated risk scoring (0–100) with Low / Medium / High / Critical classification and colour badges"
-    - "Legal mapping to POCSO Act 2012 (§11–§19) and IT Act 2000 (§67B, §66E, §67, §66C/D)"
-    - "10-step evidence preservation checklist that avoids re-exposure of harmful content"
-    - "Auto-filled CyberTipline / cybercrime.gov.in style report downloadable as Markdown or PDF, with 5 one-click synthetic demo cases"
+    - "IBM watsonx.ai (Granite) live AI assessment with graceful fallback to deterministic engine"
+    - "Personalized Safety Plan: what to do, what to avoid, evidence guidance, escalation contacts"
+    - "SQLite case history with status tracking (Open / Under Review / Report Prepared / Resolved)"
+    - "Structured Incident Report Draft (Markdown + PDF) with prominent DRAFT disclaimer and no harmful content"
+    - "5 one-click synthetic demo cases covering LOW through URGENT severity; immediate-safety banner always shown when triggered"
 
   tech_stack:
     languages: ["Python"]
     frameworks: ["Streamlit"]
-    ibm_technologies: ["IBM Bob"]
-    databases: []
-    other: ["reportlab", "Python re (regex)", "Python dataclasses"]
+    ibm_technologies: ["IBM watsonx.ai", "IBM Granite 3 8B Instruct", "IBM Bob"]
+    databases: ["SQLite"]
+    other: ["ibm-watsonx-ai SDK", "reportlab", "python-dotenv"]
 
   what_we_are_most_proud_of: >
-    The evidence preservation workflow and the legal mapping engine. We designed the tool so that
-    a non-technical parent or teacher can go from "I found something concerning" to a legally
-    referenced, court-ready incident report in under 60 seconds — without ever re-opening the
-    original content. The POCSO + IT Act §67B mapping with penalty details is rare in consumer
-    safety tools and gives child-protection workers immediate legal grounding.
+    The hybrid AI + deterministic safety architecture. IBM watsonx.ai (Granite) generates
+    contextual, plain-language safety signals and a personalised safety plan, while the
+    deterministic engine ensures the severity level can never be artificially lowered by an
+    uncertain AI response. Immediate safety concern always triggers the urgent banner regardless
+    of AI confidence. The entire workflow — from description to downloadable report draft — takes
+    under 60 seconds and never asks the parent to re-view harmful content. Bob subagents were
+    used genuinely to implement architecture, backend, frontend, and QA in parallel.
 
   known_limitations: >
-    Analysis is regex/pattern-based (no LLM); it can produce false positives on innocent text
-    containing trigger words in non-harmful contexts. PDF rendering is basic — a production version
-    would use a proper template engine. The tool is English-only and India-specific in its legal
-    references. No authentication or audit logging is implemented in this MVP.
+    Live watsonx.ai requires credentials (app runs in Demo Mode without them). The deterministic
+    safety rules engine can produce false positives on innocent text containing trigger words.
+    PDF rendering uses basic reportlab text parsing. The tool is English-only and India-specific
+    in its legal references. No authentication or multi-user isolation is implemented in this MVP.
 
 # =============================================================================
 # ARTIFACT LOCATIONS

@@ -1,17 +1,23 @@
 """
-analyzer.py — Core analysis engine for Child Online Safety Monitor.
+services/safety_rules.py — Deterministic child-safety pattern analysis engine.
 
-All analysis is based on keyword/pattern matching against synthetic/mock input.
+Refactored from analyzer.py. All logic is identical; only names have changed:
+  - AnalysisResult  →  DeterministicResult  (imported from models.assessment)
+  - analyse_text()  →  analyse()
+
+All pattern constants are preserved and exported so other modules can import them.
 This module never stores, transmits, or re-displays raw harmful content.
 """
 
 from __future__ import annotations
 import re
-from dataclasses import dataclass, field
-from typing import List, Dict, Tuple
+from dataclasses import dataclass
+from typing import List, Tuple
+
+from models.assessment import DeterministicResult
 
 # ---------------------------------------------------------------------------
-# Data structures
+# Data structures (also exported for use by report_service and ui components)
 # ---------------------------------------------------------------------------
 
 @dataclass
@@ -27,17 +33,6 @@ class LegalMapping:
     section: str
     description: str
     max_penalty: str
-
-
-@dataclass
-class AnalysisResult:
-    risk_level: str          # Low | Medium | High | Critical
-    risk_score: int          # 0–100
-    warning_signs: List[WarningSigns] = field(default_factory=list)
-    legal_mappings: List[LegalMapping] = field(default_factory=list)
-    preservation_steps: List[str] = field(default_factory=list)
-    summary: str = ""
-    input_type: str = "unknown"  # behavioural | chat
 
 
 # ---------------------------------------------------------------------------
@@ -150,7 +145,7 @@ PRESERVATION_STEPS = [
 
 
 # ---------------------------------------------------------------------------
-# Core analysis function
+# Core analysis functions
 # ---------------------------------------------------------------------------
 
 def detect_input_type(text: str) -> str:
@@ -161,14 +156,15 @@ def detect_input_type(text: str) -> str:
     return "behavioural"
 
 
-def analyse_text(text: str) -> AnalysisResult:
+def analyse(text: str) -> DeterministicResult:
     """
-    Main analysis entry-point.
-    Accepts raw text (behavioural description or mock chat excerpt).
-    Returns AnalysisResult with all findings.
+    Main entry-point for the deterministic analysis engine.
+    Renamed from analyse_text() in analyzer.py.
+    Implementation is identical — same patterns, scoring, legal mappings.
+    Returns DeterministicResult (renamed from AnalysisResult).
     """
     if not text or len(text.strip()) < 10:
-        return AnalysisResult(
+        return DeterministicResult(
             risk_level="Low",
             risk_score=0,
             summary="Insufficient input provided for analysis.",
@@ -221,7 +217,6 @@ def analyse_text(text: str) -> AnalysisResult:
         r"|share.{0,25}(school|friends|everyone))\b",
         re.I,
     )
-    has_contact = re.compile(r"\b(meet|in.{0,10}person|offline|come.{0,10}over)\b", re.I)
 
     # Always include POCSO §19 (mandatory reporting) and §11 if any sign found
     if matched_signs:
@@ -252,7 +247,7 @@ def analyse_text(text: str) -> AnalysisResult:
     sign_count = len(matched_signs)
     summary = _build_summary(risk_level, score, sign_count, input_type)
 
-    return AnalysisResult(
+    return DeterministicResult(
         risk_level=risk_level,
         risk_score=score,
         warning_signs=matched_signs,

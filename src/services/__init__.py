@@ -1,0 +1,1 @@
+# COSM services package
